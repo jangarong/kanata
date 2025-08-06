@@ -1,0 +1,256 @@
+services:
+
+  # nginx - reverse proxy (service proxy)
+  nginx-jan:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-jan
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/root.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.10
+
+  # jangarong/jangarong.github.io
+  janco-portal:
+    restart: unless-stopped
+    hostname: janco-portal-service
+    image: jangarong/jangarong.github.io:10.1.0
+    container_name: janco-portal
+    expose:
+      - "3000"
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.19
+
+  # syncthing - file sync
+  nginx-sync:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-syncthing
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/sync.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.13
+  
+  syncthing:
+    image: linuxserver/syncthing:1.23.5
+    container_name: syncthing
+    hostname: janco-syncthing-service
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ./volumes/user/syncthing/config:/config
+      - ./volumes/user:/data
+    expose:
+      - 8384
+      - 22000/tcp
+      - 22000/udp
+      - 21027/udp
+    restart: unless-stopped
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.11
+
+  # syncthing - file sync
+  nginx-files:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-filebrowser
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/files.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.14
+
+  # filebrowser. note: starting user/pass combo is admin/admin
+  filebrowser:
+    restart: unless-stopped
+    hostname: janco-filebrowser-service
+    container_name: filebrowser
+    image: hurlenko/filebrowser:v2.29.0
+    volumes:
+      - ./volumes/user:/data
+      - ./volumes/container/filebrowser/config:/config
+    expose:
+      - 8080
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.12
+
+  # vpn config
+  nginx-vpn:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-vpn
+    expose:
+      - "443" # web UI
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/vpn.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.4
+
+  # actual vpn container
+  wg-easy:
+    hostname: wgeasy
+    environment:
+      # ⚠️ Change the server's hostname (clients will connect to):
+      - WG_HOST=${HOSTNAME}
+
+      # ⚠️ Change the Web UI Password:
+      - PASSWORD_HASH=${WIREGUARD_PASSWORD_HASH}
+
+      # 💡 This is the Pi-Hole Container's IP Address
+      - WG_DEFAULT_DNS=10.8.1.3
+      - WG_DEFAULT_ADDRESS=10.8.0.x
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wg-easy
+    volumes:
+      - ./volumes/container/wireguard:/etc/wireguard
+    ports:
+      - "51820:51820/udp"
+    expose:
+      - "51821/tcp"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.2
+
+  # dns pihole service
+  nginx-dns:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-dns
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/dns.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.5
+
+  pihole:
+    image: pihole/pihole:2025.03.0
+    container_name: pihole
+    hostname: pihole
+    environment:
+      # ⚠️ Change the Web UI Password:
+      - WEBPASSWORD=${PIHOLE_PASSWORD}
+    volumes:
+      - "./volumes/container/pihole:/etc/pihole"
+      - ./config/pihole/custom.list:/etc/pihole/hosts/custom.list
+      # - './.pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+    expose:
+      - "53/udp"
+      - "53/tcp"
+      - "80/tcp"
+    restart: unless-stopped
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.3
+
+  # archivebox service
+  # this will be a complete archive of ALL things me! Keep this SAFE!
+  nginx-archive:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-archive
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/archive.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.90
+
+  archivebox:
+    restart: unless-stopped
+    image: archivebox/archivebox:0.7.3
+    hostname: archivebox
+    container_name: archivebox
+    expose:
+      - "8000"
+    environment:
+      - ADMIN_USERNAME=${ARCHIVEBOX_ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ARCHIVEBOX_ADMIN_PASSWORD}
+      - ALLOWED_HOSTS=*
+      - PUBLIC_INDEX=True
+      - PUBLIC_SNAPSHOTS=True
+      - PUBLIC_ADD_VIEW=False
+      - SEARCH_BACKEND_ENGINE=sonic
+      - SEARCH_BACKEND_HOST_NAME=sonic
+      - SEARCH_BACKEND_PASSWORD=${ARCHIVEBOX_SEARCH_BACKEND_PASSWORD}
+      - SAVE_ARCHIVE_DOT_ORG=False
+    volumes:
+      # we're moving away from container/ --> to ./ for simplicty
+      - ./volumes/container/archivebox/data/:/data
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.91
+      default:
+    dns:
+      - 10.8.1.3
+
+  # github services
+  # migrated
+  nginx-gitea:
+    restart: unless-stopped
+    image: nginx:1.21.6-alpine
+    container_name: nginx-gitea
+    expose:
+      - "443"
+    volumes:
+      - ./volumes/container/letsencrypt:/etc/letsencrypt
+      - ./static/nginx/gitea.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.22
+
+  gitea:
+    image: gitea/gitea:1.21.11
+    hostname: gitea-service
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    volumes:
+      - ./volumes/container/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    expose:
+      - "3000"
+      - 20022
+    networks:
+      vpn:
+        ipv4_address: 10.8.1.20
+
+networks:
+  vpn:
+    name: vpn
+    ipam:
+      config:
+        - subnet: 10.8.1.0/24
+    driver: bridge
