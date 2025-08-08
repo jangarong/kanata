@@ -22,17 +22,22 @@
 #                                                                                #
 ##################################################################################
 
-10.8.1.90 archivebox.corp.jangarong.com
-10.8.1.90 www.archivebox.corp.jangarong.com
-10.8.1.5 dns.corp.jangarong.com
-10.8.1.5 www.dns.corp.jangarong.com
-10.8.1.4 vpn.corp.jangarong.com
-10.8.1.4 www.vpn.corp.jangarong.com
-10.8.1.10 corp.jangarong.com
-10.8.1.10 www.corp.jangarong.com
-10.8.1.22 gitea.corp.jangarong.com
-10.8.1.22 www.gitea.corp.jangarong.com
-10.8.1.13 sync.corp.jangarong.com
-10.8.1.13 www.sync.corp.jangarong.com
-10.8.1.14 files.corp.jangarong.com
-10.8.1.14 www.files.corp.jangarong.com
+10.8.1.4 dns.corp.jangarong.com
+10.8.1.4 www.dns.corp.jangarong.com
+10.8.1.5 vpn.corp.jangarong.com
+10.8.1.5 www.vpn.corp.jangarong.com
+
+10.8.1.6 corp.jangarong.com
+10.8.1.6 www.corp.jangarong.com
+
+10.8.1.7 sync.corp.jangarong.com
+10.8.1.7 www.sync.corp.jangarong.com
+10.8.1.8 files.corp.jangarong.com
+10.8.1.8 www.files.corp.jangarong.com
+
+10.8.1.9 archivebox.corp.jangarong.com
+10.8.1.9 www.archivebox.corp.jangarong.com
+10.8.1.10 gitea.corp.jangarong.com
+10.8.1.10 www.gitea.corp.jangarong.com
+10.8.1.11 memos.corp.jangarong.com
+10.8.1.11 www.memos.corp.jangarong.com
