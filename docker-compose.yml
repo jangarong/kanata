@@ -203,6 +203,7 @@ services:
       - SEARCH_BACKEND_HOST_NAME=sonic
       - SEARCH_BACKEND_PASSWORD=${ARCHIVEBOX_SEARCH_BACKEND_PASSWORD}
       - SAVE_ARCHIVE_DOT_ORG=False
+      - CHECK_SSL_VALIDITY=False
     volumes:
       # we're moving away from container/ --> to ./ for simplicty
       - ./volumes/container/archivebox/data/:/data
