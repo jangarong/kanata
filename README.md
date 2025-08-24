@@ -1,4 +1,4 @@
-# kanata
+# penguin-secret-agency
 
 Just my self-hosted setup for one of my raspberry pis. 
 
