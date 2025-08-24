@@ -49,10 +49,9 @@ save_imgs() {
     docker save nginx:1.21.6-alpine -o images/nginx_img.tar
     docker save archivebox/archivebox:0.7.3 -o images/archivebox_img.tar
     docker save pihole/pihole:2025.03.0 -o images/pihole_img.tar
-    docker save jangarong/jangarong.github.io:4.2.4 -o images/jangarong_img.tar
     docker save linuxserver/syncthing:1.23.5 -o images/syncthing_img.tar
     docker save hurlenko/filebrowser:v2.29.0 -o images/filebrowser_img.tar
-    docker save portainer/portainer-ce:2.18.1 -o images/portainer_img.tar
+    docker save gitea/gitea:1.21.11y -o images/gitea_img.tar
     docker save ghcr.io/wg-easy/wg-easy -o images/wgeasy_img.tar
     echo "Done saving individual images!"
     echo "Tarring all the images together..."
@@ -71,11 +70,10 @@ load_imgs() {
         docker load -i images/nginx_img.tar
         docker load -i images/archivebox_img.tar
         docker load -i images/pihole_img.tar
-        docker load -i images/jangarong_img.tar
         docker load -i images/syncthing_img.tar
         docker load -i images/filebrowser_img.tar
-        docker load -i images/portainer_img.tar
         docker load -i images/wgeasy_img.tar
+        docker load -i images/gitea_img.tar
         rm -rf images
         echo "Done loading images and cleanup!"
     else
