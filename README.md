@@ -16,11 +16,6 @@ down to:
 * Gitea (`/git`) - GitHub alternative limited to this network only. Most of my solo work is on here!
   * note: to use SSH, please use the direct host `10.8.1.60:22`
 
-## Tech Debt/Future Ideas
-* Properly decide on whether to use raw IPs or domain names, has the tradeoff
-  of doing self-signed certs or having to do a yearly thing on Linode where 
-  I generate a new set of certs.
-
 ## Note on gitea
 Please ensure the gitea's config file `./volumes/container/gitea/gitea/conf/app.ini` looks like this:
 ```
